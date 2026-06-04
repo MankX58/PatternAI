@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx-js-style';
 import confetti from 'canvas-confetti';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { useAuth0 } from '@auth0/auth0-react';
 import './App.css';
 import { designs } from '@freesewing/collection';
 import svgs from './svgs.json';
@@ -608,11 +609,20 @@ function StudioPatternCard({ name, fullName, isSelected, onClick }) {
 
 // --- Main App Layout ---
 function App() {
-  const [appMode, setAppMode] = useState('gallery'); // 'gallery' or 'studio'
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+  const [appMode, setAppMode] = useState('gallery'); // 'gallery', 'studio', 'profile'
   const [viewMode, setViewMode] = useState('line'); // Default view in studio
   const [galleryViewMode, setGalleryViewMode] = useState('photo'); // View in gallery
   const [searchTerm, setSearchTerm] = useState('');
   const [animationParent] = useAutoAnimate();
+  const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('patternAI_favs')) || []);
+
+  const toggleFavorite = (name, e) => {
+    if(e) e.stopPropagation();
+    let newFavs = favorites.includes(name) ? favorites.filter(f => f !== name) : [...favorites, name];
+    setFavorites(newFavs);
+    localStorage.setItem('patternAI_favs', JSON.stringify(newFavs));
+  };
   
   const defaultPattern = Object.entries(designs)[0];
   const [selectedPattern, setSelectedPattern] = useState({
@@ -659,7 +669,19 @@ function App() {
             <button className={galleryViewMode === 'line' ? 'active' : ''} onClick={() => setGalleryViewMode('line')}>Ilustración</button>
             <button className={galleryViewMode === 'photo' ? 'active' : ''} onClick={() => setGalleryViewMode('photo')}>Foto 3D</button>
           </div>
-          <button className="theme-toggle" onClick={toggleTheme} title="Cambiar tema">{isLightMode ? '🌙' : '☀️'}</button>
+          <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+            <button className="theme-toggle" onClick={toggleTheme} title="Cambiar tema">{isLightMode ? '🌙' : '☀️'}</button>
+            {isAuthenticated ? (
+              <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center', cursor: 'pointer'}} onClick={() => setAppMode('profile')}>
+                <img src={user.picture} alt={user.name} style={{width: 30, height: 30, borderRadius: '50%'}} />
+                <span style={{fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-heading)'}}>{user.given_name || user.name}</span>
+              </div>
+            ) : (
+              <button className="btn-primary-full" style={{width: 'auto', padding: '0.4rem 1rem'}} onClick={() => loginWithRedirect()}>
+                Iniciar Sesión
+              </button>
+            )}
+          </div>
         </header>
 
         <main className="gallery-grid-container">
@@ -692,9 +714,20 @@ function App() {
                         </>
                       )}
                     </div>
-                    <div className="gallery-card-info">
-                      <h3>{fullName}</h3>
-                      <span>Abrir en Estudio ➔</span>
+                    <div className="gallery-card-info" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '0.2rem'}}>
+                        <h3 style={{fontSize: '1rem'}}>{fullName}</h3>
+                        <span style={{fontSize: '0.8rem'}}>Abrir en Estudio ➔</span>
+                      </div>
+                      {isAuthenticated && (
+                        <button 
+                          onClick={(e) => toggleFavorite(name, e)}
+                          style={{background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer'}}
+                          title={favorites.includes(name) ? "Quitar de favoritos" : "Guardar en favoritos"}
+                        >
+                          {favorites.includes(name) ? '❤️' : '🤍'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -705,6 +738,74 @@ function App() {
       </div>
     );
   }
+
+  if (appMode === 'profile' && isAuthenticated) {
+    return (
+      <div className="gallery-layout page-transition" style={{alignItems: 'center', padding: '0'}}>
+        <header className="gallery-topbar" style={{width: '100%', position: 'sticky', top: 0, padding: '1rem 2rem'}}>
+          <div className="logo-text">⚡ PatternAI <span className="version">Perfil de Usuario</span></div>
+          <button className="btn-back" onClick={() => setAppMode('gallery')}>⮜ Volver al Catálogo</button>
+        </header>
+
+        <main style={{width: '100%', maxWidth: '800px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem'}}>
+          <div style={{display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', background: 'var(--bg-panel)', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)'}}>
+            <img src={user?.picture} alt={user?.name} style={{width: 80, height: 80, borderRadius: '50%'}} />
+            <div>
+              <h1 style={{margin: '0 0 0.5rem', color: 'var(--text-heading)'}}>{user?.name}</h1>
+              <p style={{margin: 0, color: 'var(--text)'}}>{user?.email}</p>
+              <button className="btn-secondary-full" style={{marginTop: '1rem', padding: '0.4rem 1rem', width: 'auto'}} onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <h2 style={{color: 'var(--text-heading)'}}>Mis Patrones Favoritos ❤️</h2>
+            {favorites.length === 0 ? (
+              <p style={{color: 'var(--text)'}}>No tienes patrones guardados aún.</p>
+            ) : (
+              <div className="gallery-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))'}}>
+                {favorites.map(name => {
+                  const Design = designs[name];
+                  if(!Design) return null;
+                  let fullName = name;
+                  try { const p = new Design(); if(p.designConfig?.data?.name) fullName = p.designConfig.data.name; } catch(e){}
+                  const photoUrl = `https://cdn.freesewing.eu/design/${name}.webp`;
+                  return (
+                    <div key={name} className="gallery-card" onClick={() => selectPatternAndGoToStudio(name, fullName, Design)}>
+                      <div className="gallery-card-img" style={{height: 150}}>
+                        <img src={photoUrl} alt={fullName} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                        <div className="fallback-img" style={{display: 'none', background: 'var(--bg-panel)', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--text)'}}>Sin vista previa</div>
+                      </div>
+                      <div className="gallery-card-info" style={{padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <h3 style={{fontSize: '1rem', margin: 0}}>{fullName}</h3>
+                        <button 
+                          onClick={(e) => toggleFavorite(name, e)}
+                          style={{background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: 0}}
+                          title="Quitar de favoritos"
+                        >❤️</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h2 style={{color: 'var(--text-heading)'}}>Ajustes de Producción (Simulado)</h2>
+            <div className="info-box" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+               <p style={{margin: 0}}><strong>Fábrica por Defecto:</strong> Confecciones Medellín (Colombia)</p>
+               <p style={{margin: 0}}><strong>Costo Hora Operario (Local):</strong> $6,500 COP</p>
+               <p style={{margin: 0}}><strong>Medidas Base:</strong> Talla M Industrial estándar</p>
+               <p style={{margin: 0}}><strong>Moneda de Costeo:</strong> COP ($)</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
 
   // --- STUDIO MODE ---
   return (
@@ -724,7 +825,13 @@ function App() {
         </div>
         <div className="topbar-right">
           <button className="theme-toggle" onClick={toggleTheme}>{isLightMode ? '🌙' : '☀️'}</button>
-          <div className="user-avatar">AD</div>
+          {isAuthenticated ? (
+            <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center', cursor: 'pointer'}} onClick={() => setAppMode('profile')}>
+              <img src={user.picture} alt={user.name} style={{width: 30, height: 30, borderRadius: '50%'}} />
+            </div>
+          ) : (
+            <button className="btn-secondary-full" style={{width: 'auto', padding: '0.2rem 0.5rem'}} onClick={() => loginWithRedirect()}>Ingresar</button>
+          )}
         </div>
       </header>
 
