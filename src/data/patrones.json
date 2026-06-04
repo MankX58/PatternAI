@@ -1,0 +1,62 @@
+[
+  {
+    "id": "patterns",
+    "nombre": "PATTERNS",
+    "categoria": "CÓDIGO ABIERTO",
+    "autor": "darrenstarr",
+    "descripcion": "Patterns designed for Seamly2d",
+    "urls": {
+      "github": "https://github.com/darrenstarr/Patterns",
+      "archivo": "/assets/patterns/patterns.val",
+      "imagen": "/assets/img/patterns.jpg"
+    }
+  },
+  {
+    "id": "seamly2d-tutorial-patterns",
+    "nombre": "SEAMLY2D TUTORIAL PATTERNS",
+    "categoria": "CÓDIGO ABIERTO",
+    "autor": "Caleb68864",
+    "descripcion": "Patrón de costura open-source extraído de GitHub.",
+    "urls": {
+      "github": "https://github.com/Caleb68864/Seamly2d-Tutorial-Patterns",
+      "archivo": "/assets/patterns/seamly2d-tutorial-patterns.val",
+      "imagen": "/assets/img/seamly2d-tutorial-patterns.jpg"
+    }
+  },
+  {
+    "id": "seamly2d-patterns-",
+    "nombre": "SEAMLY2D PATTERNS ",
+    "categoria": "CÓDIGO ABIERTO",
+    "autor": "anna71nowak-alt",
+    "descripcion": "Patrón de costura open-source extraído de GitHub.",
+    "urls": {
+      "github": "https://github.com/anna71nowak-alt/Seamly2D-patterns-",
+      "archivo": "/assets/patterns/seamly2d-patterns-.val",
+      "imagen": "/assets/img/seamly2d-patterns-.jpg"
+    }
+  },
+  {
+    "id": "stitchly3d",
+    "nombre": "STITCHLY3D",
+    "categoria": "CÓDIGO ABIERTO",
+    "autor": "n-conq",
+    "descripcion": "adding seam information to 2D cutting patterns from Seamly2D",
+    "urls": {
+      "github": "https://github.com/n-conq/Stitchly3D",
+      "archivo": "/assets/patterns/stitchly3d.val",
+      "imagen": "/assets/img/stitchly3d.jpg"
+    }
+  },
+  {
+    "id": "tiledizer",
+    "nombre": "TILEDIZER",
+    "categoria": "CÓDIGO ABIERTO",
+    "autor": "kuavoc",
+    "descripcion": "Tiles images to Letter or A4 format and converts to PDF for printing, cutting and assembling, made with sewing patterns created in Seamly2D in mind.",
+    "urls": {
+      "github": "https://github.com/kuavoc/tiledizer",
+      "archivo": "/assets/patterns/tiledizer.val",
+      "imagen": "/assets/img/tiledizer.jpg"
+    }
+  }
+]
