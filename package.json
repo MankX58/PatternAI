@@ -15,6 +15,7 @@
     "@freesewing/config": "^4.9.0",
     "@freesewing/core": "^4.9.0",
     "@freesewing/i18n": "^4.9.0",
+    "@freesewing/plugin-annotations": "^4.9.0",
     "@freesewing/plugin-bartack": "^2.22.2",
     "@freesewing/plugin-bundle": "^2.22.2",
     "@freesewing/plugin-bust": "^4.9.0",
