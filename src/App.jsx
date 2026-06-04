@@ -730,34 +730,43 @@ function App() {
 
       <div className="studio-body">
         <aside className="studio-sidebar-left">
-          <div className="sidebar-header">
-            <h4>Catálogo Local</h4>
-            <div className="search-box">
-              <span className="search-icon">🔍</span>
-              <input type="text" placeholder="Filtrar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <details className="mobile-catalog-dropdown" open>
+            <summary className="catalog-summary">
+              <span className="summary-title">📚 Catálogo de Patrones</span>
+              <span className="summary-icon">▼</span>
+            </summary>
+            <div className="sidebar-header desktop-only">
+              <h4>Catálogo Local</h4>
+              <div className="search-box">
+                <span className="search-icon">🔍</span>
+                <input type="text" placeholder="Filtrar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              </div>
             </div>
-          </div>
-          <div className="sidebar-list">
-            {Object.entries(designs).filter(([name]) => filteredNames.includes(name)).map(([name, Design]) => {
-                let fullName = name;
-                try {
-                  const p = new Design();
-                  if (p.designConfig?.data?.name) fullName = p.designConfig.data.name;
-                } catch (e) {}
-
-                return (
-                  <StudioPatternCard 
-                    key={name} name={name} fullName={fullName} isSelected={selectedPattern && selectedPattern.name === name}
-                    onClick={() => {
-                      const editorState = JSON.stringify({ design: name, view: 'measurements' });
-                      const editorUrl = `https://freesewing.eu/editor/#s=${encodeURIComponent(editorState)}`;
-                      setSelectedPattern({ name, fullName, editorUrl, Design });
-                      if (viewMode === 'editor') setViewMode(galleryViewMode);
-                    }} 
-                  />
-                );
-            })}
-          </div>
+            <div className="sidebar-list">
+              {Object.entries(designs).filter(([name]) => filteredNames.includes(name)).map(([name, Design]) => {
+                  let fullName = name;
+                  try {
+                    const p = new Design();
+                    if (p.designConfig?.data?.name) fullName = p.designConfig.data.name;
+                  } catch (e) {}
+  
+                  return (
+                    <StudioPatternCard 
+                      key={name} name={name} fullName={fullName} isSelected={selectedPattern && selectedPattern.name === name}
+                      onClick={() => {
+                        const editorState = JSON.stringify({ design: name, view: 'measurements' });
+                        const editorUrl = `https://freesewing.eu/editor/#s=${encodeURIComponent(editorState)}`;
+                        setSelectedPattern({ name, fullName, editorUrl, Design });
+                        if (viewMode === 'editor') setViewMode(galleryViewMode);
+                        if (window.innerWidth <= 768) {
+                          document.querySelector('.mobile-catalog-dropdown')?.removeAttribute('open');
+                        }
+                      }} 
+                    />
+                  );
+              })}
+            </div>
+          </details>
         </aside>
 
         <main className="studio-canvas">
