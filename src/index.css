@@ -114,6 +114,7 @@ body {
 .sidebar-list {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -486,7 +487,7 @@ body {
 
 /* Global Catalog Dropdown styles */
 .catalog-summary { display: none; }
-.mobile-catalog-dropdown { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.mobile-catalog-dropdown { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
 
 /* --- RESPONSIVE DESIGN (MOBILE) --- */
 @media (max-width: 768px) {
